@@ -1,35 +1,48 @@
 #ifndef PIN_SERVICE_HPP
 #define PIN_SERVICE_HPP
 
-#include "service/Logger.hpp"
+#include <Arduino.h>
 
 class PinService
 {
 private:
-  int *rows;
-  int *cols;
-  int buzzer, positive, negative;
   Log logger;
+  int A = D2;
+  int B = D3;
+  int C = D4;
+  int P = D6;
+  int Q = D7;
+  int R = D8;
+  int output = D5;
+  int input = D1;
 
 public:
-  PinService() {}
-
-  PinService(int *rows, int *cols, int positive, int negative, int buzzer)
+  PinService()
   {
-    (*this).rows = rows;
-    (*this).cols = cols;
-    (*this).buzzer = buzzer;
-    (*this).positive = positive;
-    (*this).negative = negative;
-    set_pinmode();
+    setPinmode();
   }
 
-  void turnOnLeds(String *leds)
+  String readBlocks()
   {
-    write(positive, HIGH);
+    String blocks = "";
+    write(output, HIGH);
+    for (int row = 0; row < 8; row++)
+    {
+      selectRow(row);
+      for (int col = 0; col < 8; col++)
+      {
+        selectCol(col);
+        delay(10);
+        
+        if (read(input))
+        {
+          blocks += (char)(row + 'a') + String(col);
+        }
+      }
+    }
+    write(output, LOW);
+    return blocks;
   }
-
-  void turnOfAllLeds() {}
 
 private:
   void write(int pinNo, int value)
@@ -37,16 +50,42 @@ private:
     return digitalWrite(pinNo, value);
   }
 
-  void set_pinmode()
+  int read(int pin)
   {
-    for (int i = 0; i < 4; i++)
-    {
-      pinMode(rows[i], OUTPUT);
-      pinMode(cols[i], OUTPUT);
-    }
-    pinMode(buzzer, OUTPUT);
-    pinMode(positive, OUTPUT);
-    pinMode(negative, OUTPUT);
+    return digitalRead(pin);
+  }
+
+  void turnOnLed(char rowChar, int col)
+  {
+    int row = rowChar - 'a';
+    selectRow(row);
+    selectCol(col);
+  }
+
+  void selectRow(int num)
+  {
+    write(A, num >> 0 & 1);
+    write(B, num >> 1 & 1);
+    write(C, num >> 2 & 1);
+  }
+
+  void selectCol(int num)
+  {
+    write(P, num >> 0 & 1);
+    write(Q, num >> 1 & 1);
+    write(R, num >> 2 & 1);
+  }
+
+  void setPinmode()
+  {
+    pinMode(A, OUTPUT);
+    pinMode(B, OUTPUT);
+    pinMode(C, OUTPUT);
+    pinMode(P, OUTPUT);
+    pinMode(Q, OUTPUT);
+    pinMode(R, OUTPUT);
+    pinMode(output, OUTPUT);
+    pinMode(input, OUTPUT);
   }
 };
 

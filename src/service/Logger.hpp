@@ -34,6 +34,16 @@ public:
   {
     Serial.println("Warn: " + message);
   }
+
+  String readMessage()
+  {
+    return Serial.readString();
+  }
+
+  void write(String message)
+  {
+    Serial.write(message.c_str());
+  }
 };
 
 #endif
