@@ -9,6 +9,8 @@ private:
   String fen = "";
   String from = "";
   String to = "";
+  String prevBlocks = "";
+  bool asksForSuggestion = false;
 
 public:
   FenService() {}
@@ -28,7 +30,61 @@ public:
 
   String getAction(String blocks)
   {
-    // logic here to get actions
+    if (prevBlocks == "" || prevBlocks.length() == blocks.length())
+    {
+      prevBlocks = blocks;
+      return "";
+    }
+
+    updateFromAndTo(blocks);
+    return getFinalAction();
+  }
+
+private:
+  void updateFromAndTo(String blocks)
+  {
+    if (prevBlocks.length() > blocks.length() && from == "")
+    {
+      from = getDiffFromPrevBlocks(blocks, true);
+    }
+    else
+    {
+      to = getDiffFromPrevBlocks(blocks, false);
+    }
+  }
+
+  String getDiffFromPrevBlocks(String blocks, bool isMax)
+  {
+    String max = isMax ? prevBlocks : blocks;
+    String min = !isMax ? prevBlocks : blocks;
+    String diff = "";
+    for (int index = 0; index < max.length(); index += 2)
+    {
+      String subString = max.substring(index, index + 1);
+      if (min.indexOf(subString) == -1)
+      {
+        diff += subString;
+      }
+    }
+    return diff;
+  }
+
+  String getFinalAction()
+  {
+    if (to != "")
+    {
+      from = "";
+      to = "";
+      asksForSuggestion = false;
+      return "move " + from + "-" + to;
+    }
+
+    if (to == "" || !asksForSuggestion)
+    {
+      asksForSuggestion = true;
+      return "suggestion " + from;
+    }
+
     return "";
   }
 };
