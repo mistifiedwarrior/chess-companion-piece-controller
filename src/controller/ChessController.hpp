@@ -24,23 +24,14 @@ public:
     if (fenService.isMyTurn())
     {
       String blocks = chessService.readBlocks();
+
       String action = fenService.getAction(blocks);
       if (action != "")
       {
         logger.write(action);
       }
     }
-
-    // read fen from master node
-    // read value from board
-    // check difference. which piece has been disconnected. temp store in picked.
-    // if piece is opponent put it into to else from
-
-    // if any opponent piece has been picked up
-    // fen check difference between fen and reading value
   }
-
-private:
 };
 
 #endif
